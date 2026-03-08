@@ -1,0 +1,152 @@
+CLASS Order:
+    Attributes:
+        Self.Pizzas = {
+            "Pepperoni" : 0
+            "Chicken Supreme" : 0
+            "BBQ Meatlovers" : 0
+            "Veg Supreme" : 0
+            "Hawaiian" : 0
+            "Margherita" : 0
+        }
+        Self.Name
+        Self.DiscountEligible = FALSE
+        Self.Subtotal = 0
+        Self.Cost = 0
+    
+    Methods:
+        FUNCTION DefineOrder(Self, Name):
+            Self.Name = Name
+        END DefineOrder
+
+        FUNCTION OrderPizzas(Self):
+            PizzaTypeList = ["Pepperoni", "Chicken Supreme", "BBQ Meatlovers", "Veg Supreme", "Hawaiian", "Margherita"]
+            Ordering = TRUE
+
+            WHILE Ordering == TRUE:
+                PRINT("Which Pizza Type do you want? Pepperoni, Chicken Supreme, BBQ Meatlovers, Veg Supreme, Hawaiian, or Margherita")
+                INPUT(PizzaType)
+
+                IF PizzaType is in PizzaTypeList THEN
+                    PRINT(f"How many {PizzaType} Pizzas do you want? ")
+                    INPUT(PizzaNumber)
+                END IF
+
+                Self.Pizzas[PizzaType] = PizzaNumber #Sets the number of pizzas to the number chosen
+                PRINT("Do you want to order any other pizzas? ")
+                INPUT(Ordering)
+            END WHILE
+
+        END OrderPizzas
+
+        FUNCTION IsMember(Self):
+            PRINT("Are you a loyalty member? ")
+            INPUT(Loyalty)
+            Self.DiscountEligible = Loyalty
+        END IsMember
+
+        FUNCTION CalculateSubtotal(Self):
+            PizzaPrices = {
+                "Pepperoni" : 21.00
+                "Chicken Supreme" : 23.50
+                "BBQ Meatlovers" : 25.50
+                "Veg Supreme" : 22.50
+                "Hawaiian" : 19.00
+                "Margherita" : 18.50
+            }
+            FOR PizzaType = 0 TO 5 [STEP 1]:
+                Self.Subtotal += ( Self.Pizzas[PizzaType] * PizzaPrices[PizzaType]) #This will choose the first value from both dictionaries, and then the second, and so on and so forth.
+            END FOR
+        END CalculateSubtotal
+
+        FUNCTION CalculateFinalCost(Self):
+            IF Subtotal > 100 AND DiscountEligible == FALSE:
+                DiscountEligible == TRUE #Gives discount if Cost (before GST) is greater than $100.
+            END IF
+
+            IF DiscountEligible == TRUE:
+                Self.Subtotal *= 0.95 #Discounts the subtotal by 5%
+            END IF
+
+            Self.Cost = Self.Subtotal * 1.1 #Adds GST of 10%. Stored as a separate variable so we can display GST at end.
+        END CalculateFinalCost
+
+        FUNCTION StoreOrder(Self):
+            OUTPUT("You purchased {Pizzas}")
+
+            IF DiscountEligible == TRUE:
+                OUTPUT("You were eligible for a 5% discount.")
+                OUTPUT("THe original cost was ${Self.Subtotal * 1.05}, and the discounted cost was ${Self.Subtotal}")
+            ELSE:
+                OUTPUT("The pizzas cost ${Self.Subtotal}")
+            END IF
+
+            OUTPUT("GST was 10% surcharge, for a final fee of ${Self.Cost}")
+            WRITE Self.Name, Self.Pizzas, Self.Subtotal, Self.Cost, Date to TXT FILE #Will be used for order summary
+        END StoreOrder
+
+
+
+CLASS DeliveredOrder : Order: #DeliveredOrder is a Subclass of Order, which means it inherits its attributes and methods.
+    Attributes:
+        Surcharge = 8
+
+    Methods:
+        FUNCTION AddSurcharge():
+            Self.Subtotal += 8
+        END AddSurcharge
+        
+
+
+FUNCTION NewOrder():
+    PRINT("What is the name on the order? ")
+    INPUT(Name)
+    PRINT("Will this be a home delivery or not? ")
+    INPUT(HomeDelivery)
+
+    IF HomeDelivery == TRUE:
+        Name = new DeliveredOrder(Name)
+    ELSE IF HomeDelivery == FALSE:
+        Name = new Order(Name)
+    END IF
+
+    Name.OrderPizzas()
+    Name.IsMember()
+    Name.CalculateSubtotal()
+
+    IF HomeDelivery == TRUE:
+        Name.AddSurcharge()
+    
+    Name.CalculateFinalCost()
+END NewOrder()
+
+
+
+FUNCTION OrderSummary(TodaysDate):
+    OrdersList = []
+    REPEAT #Read orders from text file and save them to a list until there are no more orders left in the document
+        Read Orders from TXT FILE
+
+        IF Orders[Date] == TodaysDate THEN
+            Save Orders to OrdersList
+        END IF
+
+    UNTIL Orders == NULL
+
+    PizzasTotal = SUM Number of Pizzas from OrdersLst 
+    TotalRevenue = SUM Subtotals from OrdersList
+    OUTPUT("Total Number of Pizzas: {PizzasTotal}")
+    OUTPUT("Total Revenue ${TotalRevenue}")
+END OrderSummary
+
+
+
+OUTPUT("Woudl you like to order something, or check the daily summary? ")
+INPUT(OrderOrSummary)
+
+IF OrderOrSummary == "Order" THEN
+    NewOrder()
+ELSE IF OrderOrSummary == "Summary" THEN
+    OrderSummary()
+ELSE THEN
+    INPUT(OrderSummary)
+END IF
