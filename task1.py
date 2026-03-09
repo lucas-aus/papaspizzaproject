@@ -37,6 +37,25 @@ class Order:
             finish_order = InputValueCheck(finish_order.upper(), ["YES", "NO"], "Please answer with YES or NO. Would you like to order more pizzas? ")
             if finish_order.upper() == 'NO':
                 ordering = False
+    
+    def IsMember(self):
+        loyalty_member = input("Are you a loyalty member? (YES or NO) ")
+        InputValueCheck(loyalty_member.upper(), ["YES", "NO"], "Please answer with YES or NO. Are you a loyalty member? ")
+
+        if loyalty_member.upper() == "YES":
+            self.discount_eligible == True
+        else:
+            self.discount_eligible == False
+    
+    def CalculateSubtotal(self):
+        pizza_prices = {
+                "Pepperoni" : 21.00,
+                "Chicken Supreme" : 23.50,
+                "BBQ Meatlovers" : 25.50,
+                "Veg Supreme" : 22.50,
+                "Hawaiian" : 19.00,
+                "Margherita" : 18.50
+            }
 
 
 class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order.
@@ -54,6 +73,7 @@ def NewOrder():
     elif delivery.upper() == "NO":
         name = Order(name)
     name.OrderPizzas()
+    name.IsMember()
 
 def InputTypeCheck(inputted, inputtype, message): #This function will check if the inputted value is of the right type, and will continually take the input with a specific message until it is of the right type.
     while True:
