@@ -13,6 +13,18 @@ class Order:
         self.subtotal = float(0)
         self.cost = float(0)
 
+    def OrderPizzas(self):
+        pizza_type_list = ["Pepperoni", "Chicken Supreme", "BBQ Meatlovers", "Veg Supreme", "Hawaiian", "Margherita"]
+        ordering = True
+        while ordering == True:
+            pizza_type = input("Which Pizza Type do you want? Pepperoni, Chicken Supreme, BBQ Meatlovers, Veg Supreme, Hawaiian, or Margherita? ")
+            pizza_type = InputValueCheck(pizza_type, pizza_type_list, "Please choose from the options Pepperoni, Chicken Supreme, BBQ Meatlovers, Veg Supreme, Hawaiian, or Margherita.")
+            #This code just checks whether the pizza type chosen is apart of the pizza type list
+
+            pizza_number = input(f"How many {pizza_type} pizzas do you want to buy?")
+            pizza_number = InputTypeCheck(pizza_number, 'integer', f"Please enter a number. How many {pizza_type} pizzas do you want to buy? ") #Makes sure the number of pizzas is an integer
+            pizza_number = InputRangeCheck(pizza_number, 0, False, "") #Checks that there is not a negative number of pizzas ordered.
+
 class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order.
     def __init__(self, name):
         Order.__init__(self, name) #calls the attribute defining the Order classes attributes
@@ -27,6 +39,7 @@ def NewOrder():
         name = DeliveredOrder(name)
     elif delivery.upper() == "NO":
         name = Order(name)
+    name.OrderPizzas()
 
 def InputTypeCheck(inputted, inputtype, message): #This function will check if the inputted value is of the right type, and will continually take the input with a specific message until it is of the right type.
     while True:
@@ -47,5 +60,19 @@ def InputValueCheck(inputted, values, message): #This function will make sure th
             return inputted
         else:
             inputted = input(message)
+
+def InputRangeCheck(inputted, lowerbound, upperbound, message): #Makes sure the input is in the range
+    while True:
+        if lowerbound != False:
+            if inputted < int(lowerbound):
+                inputted = input(message)
+            else:
+                return inputted
+        if upperbound != False:
+            if inputted > int(upperbound):
+                inputted = input(message)
+            else:
+                return inputted
+            
 
 NewOrder()
