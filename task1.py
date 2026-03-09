@@ -56,6 +56,12 @@ class Order:
                 "Hawaiian" : 19.00,
                 "Margherita" : 18.50
             }
+        pizzas = ["Pepperoni", "Chicken Supreme", "BBQ Meatlovers", "Veg Supreme", "Hawaiian", "Margherita"]
+        for i in range(6):
+            current_pizza = pizzas[i]
+            self.subtotal += self.pizzas[current_pizza] * pizza_prices[current_pizza]
+
+            
 
 
 class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order.
@@ -74,6 +80,7 @@ def NewOrder():
         name = Order(name)
     name.OrderPizzas()
     name.IsMember()
+    name.CalculateSubtotal()
 
 def InputTypeCheck(inputted, inputtype, message): #This function will check if the inputted value is of the right type, and will continually take the input with a specific message until it is of the right type.
     while True:
