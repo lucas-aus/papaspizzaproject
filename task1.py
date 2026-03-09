@@ -18,12 +18,15 @@ class Order:
         ordering = True
         while ordering == True:
             pizza_type = input("Which Pizza Type do you want? Pepperoni, Chicken Supreme, BBQ Meatlovers, Veg Supreme, Hawaiian, or Margherita? ")
-            pizza_type = InputValueCheck(pizza_type, pizza_type_list, "Please choose from the options Pepperoni, Chicken Supreme, BBQ Meatlovers, Veg Supreme, Hawaiian, or Margherita.")
+            pizza_type = InputValueCheck(pizza_type, pizza_type_list, "Please choose from the options Pepperoni, Chicken Supreme, BBQ Meatlovers, Veg Supreme, Hawaiian, or Margherita. ")
             #This code just checks whether the pizza type chosen is apart of the pizza type list
 
-            pizza_number = input(f"How many {pizza_type} pizzas do you want to buy?")
+            pizza_number = input(f"How many {pizza_type} pizzas do you want to buy? ")
             pizza_number = InputTypeCheck(pizza_number, 'integer', f"Please enter a number. How many {pizza_type} pizzas do you want to buy? ") #Makes sure the number of pizzas is an integer
-            pizza_number = InputRangeCheck(pizza_number, 0, False, "") #Checks that there is not a negative number of pizzas ordered.
+            pizza_number = InputRangeCheck(pizza_number, 0, 'none', "") #Checks that there is not a negative number of pizzas ordered.
+
+            self.pizzas[pizza_type] = int(pizza_number) # sets the pizzas dictionary to reflect the order so far
+            print(self.pizzas)
 
 class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order.
     def __init__(self, name):
@@ -63,13 +66,13 @@ def InputValueCheck(inputted, values, message): #This function will make sure th
 
 def InputRangeCheck(inputted, lowerbound, upperbound, message): #Makes sure the input is in the range
     while True:
-        if lowerbound != False:
-            if inputted < int(lowerbound):
+        if lowerbound != "none":
+            if int(inputted) < lowerbound:
                 inputted = input(message)
             else:
                 return inputted
-        if upperbound != False:
-            if inputted > int(upperbound):
+        if upperbound != "none":
+            if int(inputted) > int(upperbound):
                 inputted = input(message)
             else:
                 return inputted
