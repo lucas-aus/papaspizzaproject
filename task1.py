@@ -1,3 +1,5 @@
+import platform, subprocess, time
+
 class Order:
     def __init__(self, name): #function for defining all of the attributes of the class
         self.name = name
@@ -23,10 +25,19 @@ class Order:
 
             pizza_number = input(f"How many {pizza_type} pizzas do you want to buy? ")
             pizza_number = InputTypeCheck(pizza_number, 'integer', f"Please enter a number. How many {pizza_type} pizzas do you want to buy? ") #Makes sure the number of pizzas is an integer
-            pizza_number = InputRangeCheck(pizza_number, 0, 'none', "") #Checks that there is not a negative number of pizzas ordered.
+            pizza_number = InputRangeCheck(pizza_number, 0, 'none', f"Please input a number 0 or greater. How many {pizza_type} pizzas would you like to order? ") #Checks that there is not a negative number of pizzas ordered.
 
             self.pizzas[pizza_type] = int(pizza_number) # sets the pizzas dictionary to reflect the order so far
-            print(self.pizzas)
+            
+            ClearScreen()
+            print(f"""Current pizzas ordered:
+            {self.pizzas}""")
+
+            finish_order = input("Would you like to order any more pizzas? (YES or NO) ") #Will let the user choose when to stop ordering
+            finish_order = InputValueCheck(finish_order.upper(), ["YES", "NO"], "Please answer with YES or NO. Would you like to order more pizzas? ")
+            if finish_order.upper() == 'NO':
+                ordering = False
+
 
 class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order.
     def __init__(self, name):
@@ -67,7 +78,7 @@ def InputValueCheck(inputted, values, message): #This function will make sure th
 def InputRangeCheck(inputted, lowerbound, upperbound, message): #Makes sure the input is in the range
     while True:
         if lowerbound != "none":
-            if int(inputted) < lowerbound:
+            if int(inputted) < int(lowerbound):
                 inputted = input(message)
             else:
                 return inputted
@@ -76,6 +87,15 @@ def InputRangeCheck(inputted, lowerbound, upperbound, message): #Makes sure the 
                 inputted = input(message)
             else:
                 return inputted
+
+def ClearScreen(): #This will clear the terminal to avoid it becoming too cluttered
+    # Check the operating system
+    if platform.system() == "Windows":
+        # Use "cls" command on Windows
+        subprocess.run(["cls"], shell=True, check=True)
+    else:
+        # Use "clear" command on Linux/macOS (POSIX systems)
+        subprocess.run(["clear"], check=True)
             
 
 NewOrder()
