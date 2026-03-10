@@ -13,6 +13,7 @@ class Order:
         }
         self.discount_eligible = False
         self.subtotal = float(0)
+        self.discounted_cost = float(0)
         self.cost = float(0)
 
     def OrderPizzas(self):
@@ -61,13 +62,34 @@ class Order:
             current_pizza = pizzas[i]
             self.subtotal += self.pizzas[current_pizza] * pizza_prices[current_pizza]
 
+    def CalculateDiscounts(self):
+        if self.subtotal > 100 and self.discount_eligible == False:
+            self.discount_eligible = True #Sets discount to true if order costs more than $100
+        if self.discount_eligible == True:
+            self.discounted_cost = self.subtotal * 0.95 #Dicounts price by 5%
+        
+    def CalculateFinalCost(self): #Adds GST of 10% to find the final total cost
+        if self.discount_eligible == True:
+            self.cost = round(self.discounted_cost * 1.1, 2)
+        else:
+            self.cost = round(self.subtotal * 1.1, 2)
+        
             
 
 
 class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order.
     def __init__(self, name):
         Order.__init__(self, name) #calls the attribute defining the Order classes attributes
-        self.surcharge = 8
+        self.surcharge_cost = float(0)
+    
+    def AddSurcharge(self):
+        if self.discount_eligible == True:
+            self.surcharge_cost = self.discounted_cost + 8 #adds $8 surcharge
+        else:
+            self.surcharge_cost = self.subtotal + 8 #adds $8 surcharge
+        self.cost = round(self.surcharge_cost * 1.1, 2) #adds a 10% GST surcharge and rounds to 2 decimal places
+    
+
 
 def NewOrder():
     name = str(input("What is the name on the order? "))
