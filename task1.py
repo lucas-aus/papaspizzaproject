@@ -1,4 +1,4 @@
-import platform, subprocess, time
+import platform, subprocess, time, sqlite3
 
 class Order:
     def __init__(self, name): #function for defining all of the attributes of the class
@@ -73,8 +73,6 @@ class Order:
             self.cost = round(self.discounted_cost * 1.1, 2)
         else:
             self.cost = round(self.subtotal * 1.1, 2)
-        
-            
 
 
 class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order.
@@ -88,8 +86,6 @@ class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order
         else:
             self.surcharge_cost = self.subtotal + 8 #adds $8 surcharge
         self.cost = round(self.surcharge_cost * 1.1, 2) #adds a 10% GST surcharge and rounds to 2 decimal places
-    
-
 
 def NewOrder():
     name = str(input("What is the name on the order? "))
@@ -103,6 +99,12 @@ def NewOrder():
     name.OrderPizzas()
     name.IsMember()
     name.CalculateSubtotal()
+    name.CalculateDiscounts()
+    if delivery.upper() == "YES":
+        name.AddSurcharge()
+    elif delivery.upper() == "NO":
+        name.CalculateFinalCost()
+    print(name.cost)
 
 def InputTypeCheck(inputted, inputtype, message): #This function will check if the inputted value is of the right type, and will continually take the input with a specific message until it is of the right type.
     while True:
