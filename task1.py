@@ -16,6 +16,7 @@ class Order:
         self.subtotal = float(0)
         self.discounted_cost = float(0)
         self.cost = float(0)
+        self.total_pizzas = 0
 
     def OrderPizzas(self):
         pizza_type_list = ["Pepperoni", "Chicken Supreme", "BBQ Meatlovers", "Veg Supreme", "Hawaiian", "Margherita"]
@@ -43,11 +44,10 @@ class Order:
     def IsMember(self):
         loyalty_member = input("Are you a loyalty member? (YES or NO) ")
         InputValueCheck(loyalty_member.upper(), ["YES", "NO"], "Please answer with YES or NO. Are you a loyalty member? ")
-
         if loyalty_member.upper() == "YES":
-            self.discount_eligible == True
+            self.discount_eligible = True
         else:
-            self.discount_eligible == False
+            self.discount_eligible = False
     
     def CalculateSubtotal(self):
         pizza_prices = {
@@ -75,13 +75,30 @@ class Order:
         else:
             self.cost = round(self.subtotal * 1.1, 2)
 
-    def DisplayOrder(self):
+    def DisplayOrder(self): #Just outputs the order information to the user.
         ClearScreen()
-        print(f"ORDER FOR {self.name}")
+        print(f"Order For {self.name}")
         print("")
         print("Order:")
-        for i in range(len(self.pizzas)):
-            print(f"{self.pizzas[i+1]}")
+        pizza_types = ["Pepperoni", "Chicken Supreme", "BBQ Meatlovers", "Veg Supreme", "Hawaiian", "Margherita"]
+        for i in range(len(pizza_types)):
+            current_pizza = pizza_types[i]
+            print(f"{self.pizzas[current_pizza]} {current_pizza} Pizzas")
+            self.total_pizzas += self.pizzas[current_pizza]
+        print("")
+        print(f"Total number of pizzas: {self.total_pizzas}")
+        print("")
+        print(f"Subtotal: ${self.subtotal} AUD")
+        if self.discount_eligible == True:
+            print(f"5% Discount applied. New price of ${self.discounted_cost} AUD")
+            print("")
+            print(f"GST: ${round(self.discounted_cost / 10, 2)}")
+        else:
+            print("")
+            print(f"GST: ${round(self.subtotal / 10, 2)}")
+        print("")
+        print(f"Final total: ${self.cost}")
+
     
     def StoreOrder(self):
         conn = sqlite3.connect("orders_database.db") #this will connect to the sqlite database and make it if it doesn't exist
@@ -145,7 +162,7 @@ def NewOrder():
         name.AddSurcharge()
     elif delivery.upper() == "NO":
         name.CalculateFinalCost()
-    print(name.cost)
+    name.DisplayOrder()
     name.StoreOrder()
 
 def InputTypeCheck(inputted, inputtype, message): #This function will check if the inputted value is of the right type, and will continually take the input with a specific message until it is of the right type.
