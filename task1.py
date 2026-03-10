@@ -90,7 +90,6 @@ class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order
 def NewOrder():
     name = str(input("What is the name on the order? "))
     delivery = input("Will this be a delivery? (answer with YES or NO) ")
-    delivery = InputTypeCheck(delivery, 'string', "Not a valid string. Will this be a delivery? (answer with YES or NO) ")
     delivery = InputValueCheck(delivery.upper(), ["YES", "NO", ], "Please make sure to input this with YES or NO. Will this be a delivery? ") #Inputted = uppercase version of delivery, values are YES or NO, message is the string at the end.
     if delivery.upper() == "YES":
         name = DeliveredOrder(name)
@@ -113,11 +112,6 @@ def InputTypeCheck(inputted, inputtype, message): #This function will check if t
                 return int(inputted)
             except:
                 inputted = input(message) #if converting to an integer creates an error, this will get the user to input it once again.
-        elif inputtype == 'string':
-            try:
-                return str(inputted)
-            except:
-                inputted = input(message)
 
 def InputValueCheck(inputted, values, message): #This function will make sure that an input is apart of a set of options
     while True:
