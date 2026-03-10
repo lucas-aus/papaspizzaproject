@@ -81,7 +81,7 @@ CLASS Order:
             END IF
 
             OUTPUT("GST was 10% surcharge, for a final fee of ${Self.Cost}")
-            WRITE Self.Name, Self.Pizzas, Self.Subtotal, Self.Cost, Date to TXT FILE #Will be used for order summary
+            WRITE Self.Name, Self.Pizzas, Self.Subtotal, Self.Cost, Date to SQL FILE #Will be used for order summary
         END StoreOrder
 
 

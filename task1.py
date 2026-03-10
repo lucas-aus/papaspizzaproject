@@ -74,6 +74,14 @@ class Order:
             self.cost = round(self.discounted_cost * 1.1, 2)
         else:
             self.cost = round(self.subtotal * 1.1, 2)
+
+    def DisplayOrder(self):
+        ClearScreen()
+        print(f"ORDER FOR {self.name}")
+        print("")
+        print("Order:")
+        for i in range(len(self.pizzas)):
+            print(f"{self.pizzas[i+1]}")
     
     def StoreOrder(self):
         conn = sqlite3.connect("orders_database.db") #this will connect to the sqlite database and make it if it doesn't exist
@@ -88,9 +96,9 @@ class Order:
     subtotal_before_gst REAL NOT NULL,
     total_after_gst REAL NOT NULL
         );
-        )
         """)
-        cursor.execute("""
+        conn.commit()
+        query = ("""
     INSERT INTO orders (
     order_date,
     customer_name,
@@ -100,8 +108,11 @@ class Order:
     total_after_gst
     ) VALUES (?, ?, ?, ?, ?, ?)
     """)
-        order_tuple = tuple(date.today(), self.name, json.dumps(self.pizzas), self.discount_eligible, self.subtotal, self.cost)
+        order_tuple = (date.today(), self.name, json.dumps(self.pizzas), self.discount_eligible, self.subtotal, self.cost)
         #the pizzas part of the object is stored as a JSON file because dictionaries cannot be saved to SQLite (as far as I know)
+        cursor.execute(query, order_tuple)
+        conn.commit()
+        conn.close()
 
 
 
@@ -135,6 +146,7 @@ def NewOrder():
     elif delivery.upper() == "NO":
         name.CalculateFinalCost()
     print(name.cost)
+    name.StoreOrder()
 
 def InputTypeCheck(inputted, inputtype, message): #This function will check if the inputted value is of the right type, and will continually take the input with a specific message until it is of the right type.
     while True:
