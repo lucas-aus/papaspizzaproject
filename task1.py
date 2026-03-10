@@ -1,4 +1,5 @@
-import platform, subprocess, time, sqlite3
+import platform, subprocess, sqlite3, json
+from datetime import date
 
 class Order:
     def __init__(self, name): #function for defining all of the attributes of the class
@@ -73,6 +74,36 @@ class Order:
             self.cost = round(self.discounted_cost * 1.1, 2)
         else:
             self.cost = round(self.subtotal * 1.1, 2)
+    
+    def StoreOrder(self):
+        conn = sqlite3.connect("orders_database.db") #this will connect to the sqlite database and make it if it doesn't exist
+        cursor = conn.cursor()
+        cursor.execute("""
+    CREATE TABLE IF NOT EXISTS orders (
+    order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_date TEXT NOT NULL,
+    customer_name TEXT NOT NULL,
+    pizza_data TEXT NOT NULL,
+    had_discount INTEGER NOT NULL,
+    subtotal_before_gst REAL NOT NULL,
+    total_after_gst REAL NOT NULL
+        );
+        )
+        """)
+        cursor.execute("""
+    INSERT INTO orders (
+    order_date,
+    customer_name,
+    pizza_data,
+    had_discount,
+    subtotal_before_gst,
+    total_after_gst
+    ) VALUES (?, ?, ?, ?, ?, ?)
+    """)
+        order_tuple = tuple(date.today(), self.name, json.dumps(self.pizzas), self.discount_eligible, self.subtotal, self.cost)
+        #the pizzas part of the object is stored as a JSON file because dictionaries cannot be saved to SQLite (as far as I know)
+
+
 
 
 class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order.
