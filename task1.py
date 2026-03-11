@@ -75,7 +75,7 @@ class Order:
         else:
             self.cost = round(self.subtotal * 1.1, 2)
 
-    def DisplayOrder(self): #Just outputs the order information to the user.
+    def DisplayPizzas(self): #Just outputs the order information to the user.
         ClearScreen()
         print(f"Order For {self.name}")
         print("")
@@ -88,6 +88,8 @@ class Order:
         print("")
         print(f"Total number of pizzas: {self.total_pizzas}")
         print("")
+    
+    def DisplayOrderCost(self):
         print(f"Subtotal: ${self.subtotal} AUD")
         if self.discount_eligible == True:
             print(f"5% Discount applied. New price of ${self.discounted_cost} AUD")
@@ -145,6 +147,17 @@ class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order
         else:
             self.surcharge_cost = self.subtotal + 8 #adds $8 surcharge
         self.cost = round(self.surcharge_cost * 1.1, 2) #adds a 10% GST surcharge and rounds to 2 decimal places
+    
+    def DisplayOrderCost(self):
+        print(f"Subtotal: ${self.subtotal} AUD")
+        if self.discount_eligible == True:
+            print(f"5% Discount applied. New price of ${self.discounted_cost} AUD")
+        print("")
+        print(f"$8 Delivery Surcharge applied. New price of ${self.surcharge_cost} AUD")
+        print("")
+        print(f"GST of ${round(self.surcharge_cost/ 10, 2)}")
+        print(f"Final Price: ${self.cost} AUD")
+
 
 def NewOrder():
     name = str(input("What is the name on the order? "))
@@ -162,7 +175,8 @@ def NewOrder():
         name.AddSurcharge()
     elif delivery.upper() == "NO":
         name.CalculateFinalCost()
-    name.DisplayOrder()
+    name.DisplayPizzas()
+    name.DisplayOrderCost()
     name.StoreOrder()
 
 def InputTypeCheck(inputted, inputtype, message): #This function will check if the inputted value is of the right type, and will continually take the input with a specific message until it is of the right type.
