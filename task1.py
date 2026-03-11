@@ -68,7 +68,7 @@ class Order:
         if self.subtotal > 100 and self.discount_eligible == False:
             self.discount_eligible = True #Sets discount to true if order costs more than $100
         if self.discount_eligible == True:
-            self.discounted_cost = self.subtotal * 0.95 #Dicounts price by 5%
+            self.discounted_cost = round(self.subtotal * 0.95, 2) #Dicounts price by 5%
         
     def CalculateFinalCost(self): #Adds GST of 10% to find the final total cost
         if self.discount_eligible == True:
@@ -176,14 +176,14 @@ class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order
     total_after_gst
     ) VALUES (?, ?, ?, ?, ?, ?)
     """)
-        order_tuple = (date.today().isoformat(), self.name, json.dumps(self.pizzas), self.surcharge_cost, self.subtotal, self.cost)
+        order_tuple = (date.today().isoformat(), self.name, json.dumps(self.pizzas), self.discount_eligible, self.surcharge_cost, self.cost)
         #the pizzas part of the object is stored as a JSON file because dictionaries cannot be saved to SQLite (as far as I know)
         cursor.execute(query, order_tuple)
         conn.commit()
         conn.close()
 
 
-def NewOrder():
+def NewOrder(): #The function that will create order objects and call methods
     name = str(input("What is the name on the order? "))
     delivery = input("Will this be a delivery? (answer with YES or NO) ")
     delivery = InputValueCheck(delivery.upper(), ["YES", "NO", ], "Please make sure to input this with YES or NO. Will this be a delivery? ") #Inputted = uppercase version of delivery, values are YES or NO, message is the string at the end.
