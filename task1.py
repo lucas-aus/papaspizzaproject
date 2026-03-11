@@ -1,5 +1,6 @@
 import platform, subprocess, sqlite3, json
 from datetime import date
+from collections import defaultdict
 
 class Order:
     def __init__(self, name): #function for defining all of the attributes of the class
@@ -102,7 +103,7 @@ class Order:
         print(f"Final total: ${self.cost}")
 
     
-    def StoreOrder(self):
+    def CreateTable(self):
         conn = sqlite3.connect("orders_database.db") #this will connect to the sqlite database and make it if it doesn't exist
         cursor = conn.cursor()
         cursor.execute("""
@@ -117,6 +118,10 @@ class Order:
         );
         """)
         conn.commit()
+    
+    def StoreOrder(self):
+        conn = sqlite3.connect("orders_database.db")
+        cursor = conn.cursor()
         query = ("""
     INSERT INTO orders (
     order_date,
@@ -157,6 +162,25 @@ class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order
         print("")
         print(f"GST of ${round(self.surcharge_cost/ 10, 2)}")
         print(f"Final Price: ${self.cost} AUD")
+    
+    def StoreOrder(self): #This will store the data for the Delivered Orders.
+        conn = sqlite3.connect("orders_database.db")
+        cursor = conn.cursor()
+        query = ("""
+    INSERT INTO orders (
+    order_date,
+    customer_name,
+    pizza_data,
+    had_discount,
+    subtotal_before_gst,
+    total_after_gst
+    ) VALUES (?, ?, ?, ?, ?, ?)
+    """)
+        order_tuple = (date.today(), self.name, json.dumps(self.pizzas), self.surcharge_cost, self.subtotal, self.cost)
+        #the pizzas part of the object is stored as a JSON file because dictionaries cannot be saved to SQLite (as far as I know)
+        cursor.execute(query, order_tuple)
+        conn.commit()
+        conn.close()
 
 
 def NewOrder():
@@ -215,6 +239,30 @@ def ClearScreen(): #This will clear the terminal to avoid it becoming too clutte
     else:
         # Use "clear" command on Linux/macOS (POSIX systems)
         subprocess.run(["clear"], check=True)
-            
 
-NewOrder()
+class Summary:
+    def __init__(self):
+        self.pizza_total = defaultdict(int)
+        self.order_number = ''
+
+    def CollectOrders(self):
+        conn = sqlite3.connect("orders_database.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(order_date) FROM orders WHERE order_date = DATE('now')") #gets the total number of orders from today
+        order_number = cursor.fetchone()
+        order_number = order_number[0]
+
+        cursor.execute("SELECT pizza_data FROM orders WHERE order_date = DATE('now')") #gets all of the pizza data from orders today
+        pizzas_data = cursor.fetchall()
+
+        for (json_str,) in pizzas_data: #this block of code will make the attribute pizza_data show the sum of each pizza type bought
+            pizza_dict = json.loads(json_str)
+            for pizza, qty in pizza_dict.items():
+                self.pizza_total[pizza] += qty
+        
+        cursor.execute("SELECT subtotal_before_gst FROM orders WHERE order_date = DATE('now')") #Gets all of the Subtotals from orders today
+    
+
+a = Summary()
+a.CollectOrders()
+#NewOrder()
