@@ -132,7 +132,7 @@ class Order:
     total_after_gst
     ) VALUES (?, ?, ?, ?, ?, ?)
     """)
-        order_tuple = (date.today(), self.name, json.dumps(self.pizzas), self.discount_eligible, self.subtotal, self.cost)
+        order_tuple = (date.today().isoformat(), self.name, json.dumps(self.pizzas), self.discount_eligible, self.subtotal, self.cost)
         #the pizzas part of the object is stored as a JSON file because dictionaries cannot be saved to SQLite (as far as I know)
         cursor.execute(query, order_tuple)
         conn.commit()
@@ -176,7 +176,7 @@ class DeliveredOrder(Order): #DeliveredOrder is a child class of the class Order
     total_after_gst
     ) VALUES (?, ?, ?, ?, ?, ?)
     """)
-        order_tuple = (date.today(), self.name, json.dumps(self.pizzas), self.surcharge_cost, self.subtotal, self.cost)
+        order_tuple = (date.today().isoformat(), self.name, json.dumps(self.pizzas), self.surcharge_cost, self.subtotal, self.cost)
         #the pizzas part of the object is stored as a JSON file because dictionaries cannot be saved to SQLite (as far as I know)
         cursor.execute(query, order_tuple)
         conn.commit()
@@ -201,6 +201,7 @@ def NewOrder():
         name.CalculateFinalCost()
     name.DisplayPizzas()
     name.DisplayOrderCost()
+    name.CreateTable()
     name.StoreOrder()
 
 def InputTypeCheck(inputted, inputtype, message): #This function will check if the inputted value is of the right type, and will continually take the input with a specific message until it is of the right type.
@@ -244,25 +245,47 @@ class Summary:
     def __init__(self):
         self.pizza_total = defaultdict(int)
         self.order_number = ''
+        self.total_net_revenue = 0
+        self.total_gross_revenue = 0
+        self.conn = sqlite3.connect("orders_database.db")
+        self.cursor = self.conn.cursor()
 
     def CollectOrders(self):
-        conn = sqlite3.connect("orders_database.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(order_date) FROM orders WHERE order_date = DATE('now')") #gets the total number of orders from today
-        order_number = cursor.fetchone()
-        order_number = order_number[0]
+        self.cursor.execute("SELECT COUNT(order_date) FROM orders WHERE order_date = DATE('now')") #gets the total number of orders from today
+        order_number = self.cursor.fetchone()
+        order_number = order_number[0] #This takes the integer out of the tuple
 
-        cursor.execute("SELECT pizza_data FROM orders WHERE order_date = DATE('now')") #gets all of the pizza data from orders today
-        pizzas_data = cursor.fetchall()
-
+        self.cursor.execute("SELECT pizza_data FROM orders WHERE order_date = DATE('now')") #Gets a list of all of the pizza ordered data from the database
+        pizzas_data = self.cursor.fetchall()
         for (json_str,) in pizzas_data: #this block of code will make the attribute pizza_data show the sum of each pizza type bought
             pizza_dict = json.loads(json_str)
             for pizza, qty in pizza_dict.items():
                 self.pizza_total[pizza] += qty
-        
-        cursor.execute("SELECT subtotal_before_gst FROM orders WHERE order_date = DATE('now')") #Gets all of the Subtotals from orders today
     
+        self.cursor.execute("SELECT subtotal_before_gst FROM orders WHERE order_date = DATE('now')") #Gets all of the Subtotals from orders today
+        subtotal_data = self.cursor.fetchall()
+        for i in subtotal_data:
+            self.total_net_revenue += i[0]
+    
+        self.cursor.execute("SELECT total_after_gst FROM orders WHERE order_date = DATE('now')") #collect all of the final costs from the orders
+        totals_data = self.cursor.fetchall()
+        for i in totals_data:
+            self.total_gross_revenue += i[0]
 
+    def OrderSummary(self):
+        print(f"Order Summary for {date.today().isoformat()}")
+        print("")
+        print(f"Total number of orders: {self.order_number}")
+        print("")
+        for pizzas in self.pizza_total: #Will output the number of each pizza type bought today
+            print(f"Number of {pizzas} pizzas bought today: {self.pizza_total[pizzas]}")
+        print("")
+        print(f"Total Gross Revenue (Including GST): ${self.total_gross_revenue}")
+        print("")
+        print(f"Total Net Revenue (After GST is removed): ${self.total_net_revenue}")
+
+    
+NewOrder()
 a = Summary()
 a.CollectOrders()
-#NewOrder()
+a.OrderSummary()
