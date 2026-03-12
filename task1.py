@@ -132,7 +132,10 @@ class Order:
     total_after_gst
     ) VALUES (?, ?, ?, ?, ?, ?)
     """)
-        order_tuple = (date.today().isoformat(), self.name, json.dumps(self.pizzas), self.discount_eligible, self.subtotal, self.cost)
+        if self.discount_eligible == True:
+            order_tuple = (date.today().isoformat(), self.name, json.dumps(self.pizzas), self.discount_eligible, self.discounted_cost, self.cost)
+        else:
+            order_tuple = (date.today().isoformat(), self.name, json.dumps(self.pizzas), self.discount_eligible, self.subtotal, self.cost)
         #the pizzas part of the object is stored as a JSON file because dictionaries cannot be saved to SQLite (as far as I know)
         cursor.execute(query, order_tuple)
         conn.commit()
