@@ -124,7 +124,7 @@ END NewOrder()
 FUNCTION OrderSummary(TodaysDate):
     OrdersList = []
     REPEAT #Read orders from text file and save them to a list until there are no more orders left in the document
-        Read Orders from TXT FILE
+        Read Orders from SQL FILE
 
         IF Orders[Date] == TodaysDate THEN
             Save Orders to OrdersList
