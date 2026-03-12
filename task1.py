@@ -281,16 +281,16 @@ def ClearScreen(): #This will clear the terminal to avoid it becoming too clutte
         subprocess.run(["clear"], check=True)
 
 def ChooseFunction():
-    choosefunction = input("Would you like to input a new order, see today's order summary, or exit? (Input ORDER or SUMMARY or EXIT) ")
-    choosefunction = InputValueCheck(choosefunction, ["ORDER", "SUMMARY", "EXIT"], "Please input either ORDER or SUMMARY or EXIT. Would you like to input a new order or see today's order summary or exit? ")
-    if choosefunction == "ORDER":
+    choose_function = input("Would you like to input a new order, see today's order summary, or exit? (Input ORDER or SUMMARY or EXIT) ")
+    choose_function = InputValueCheck(choose_function, ["ORDER", "SUMMARY", "EXIT"], "Please input either ORDER or SUMMARY or EXIT. Would you like to input a new order or see today's order summary or exit? ")
+    if choose_function == "ORDER":
         NewOrder()
         print("")
         ChooseFunction()
-    elif choosefunction == "SUMMARY":
-        passwordinput = input("What is the employee password? ")
+    elif choose_function == "SUMMARY":
+        password_input = input("What is the employee password? ")
         password = "employeepassword" #the password required to see the order summary
-        if passwordinput != password:
+        if password_input != password:
             ClearScreen()
             print("Invalid password entered.")
             ChooseFunction()
@@ -300,7 +300,7 @@ def ChooseFunction():
             summary.OrderSummary()
             print("")
             ChooseFunction()
-    elif choosefunction == "EXIT":
+    elif choose_function == "EXIT":
         sys.exit()
 
 ChooseFunction()
