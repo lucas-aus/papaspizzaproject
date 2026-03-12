@@ -194,7 +194,7 @@ class Summary:
     def CollectOrders(self):
         self.cursor.execute("SELECT COUNT(order_date) FROM orders WHERE order_date = DATE('now')") #gets the total number of orders from today
         order_number = self.cursor.fetchone()
-        order_number = order_number[0] #This takes the integer out of the tuple
+        self.order_number = order_number[0] #This takes the integer out of the tuple
 
         self.cursor.execute("SELECT pizza_data FROM orders WHERE order_date = DATE('now')") #Gets a list of all of the pizza ordered data from the database
         pizzas_data = self.cursor.fetchall()
@@ -207,11 +207,13 @@ class Summary:
         subtotal_data = self.cursor.fetchall()
         for i in subtotal_data:
             self.total_net_revenue += i[0]
+            self.total_net_revenue = round(self.total_net_revenue, 2)
     
         self.cursor.execute("SELECT total_after_gst FROM orders WHERE order_date = DATE('now')") #collect all of the final costs from the orders
         totals_data = self.cursor.fetchall()
         for i in totals_data:
             self.total_gross_revenue += i[0]
+            self.total_gross_revenue = round(self.total_gross_revenue, 2)
 
     def OrderSummary(self):
         print(f"Order Summary for {date.today().isoformat()}")
@@ -298,6 +300,7 @@ def ChooseFunction():
             print("Invalid password entered.")
             ChooseFunction()
         else:
+            ClearScreen()
             summary = Summary()
             summary.CollectOrders()
             summary.OrderSummary()
