@@ -252,6 +252,7 @@ def InputTypeCheck(inputted, inputtype, message): #This function will check if t
     while True:
         if inputtype == 'integer':
             try:
+                int(inputted)
                 return int(inputted)
             except:
                 inputted = input(message) #if converting to an integer creates an error, this will get the user to input it once again.
